@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Probix Translator Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0e1826;
+      --ink-deep: #0a1119;
+      --panel: #12202f;
+      --panel-soft: #16283a;
+      --line: rgba(201, 162, 61, 0.22);
+      --hair: rgba(255, 255, 255, 0.08);
+      --gold: #c9a227;
+      --gold-bright: #e8c25a;
+      --coral: #d97757;
+      --paper: #f2ead9;
+      --text: #eef1f4;
+      --muted: #93a2b6;
+      --green: #6fb98f;
+      --red: #d97878;
+      --shadow: 0 30px 70px rgba(4, 8, 14, 0.55);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(201, 162, 39, 0.08), transparent 45%),
+        radial-gradient(ellipse at 90% 100%, rgba(217, 119, 87, 0.08), transparent 45%),
+        var(--ink-deep);
+      background-attachment: fixed;
+    }
+
+    /* faint lat/long ruled lines, like a chart */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(201,162,39,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,162,39,0.05) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse at 50% 20%, black 0%, transparent 70%);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 34px 20px 48px;
+      position: relative;
+    }
+
+    /* ---------- Header ---------- */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 22px;
+      padding: 20px 26px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-soft));
+      border: 1px solid var(--hair);
+      border-top: 2px solid var(--gold);
+      box-shadow: var(--shadow);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 35% 30%, #f0d377, var(--gold) 70%);
+      box-shadow: 0 0 0 1px rgba(201,162,39,0.35), 0 8px 20px rgba(201,162,39,0.25);
+      flex-shrink: 0;
+    }
+    .brand-icon svg { width: 26px; height: 26px; }
+    .brand-title { display: grid; gap: 3px; }
+    .brand-title h1 {
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-size: 1.55rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .brand-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .info-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
+      border-radius: 4px;
+      background: rgba(201, 162, 39, 0.08);
+      color: var(--paper);
+      font-size: 0.82rem;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.01em;
+      border: 1px dashed var(--line);
+    }
+
+    .main-card { display: grid; gap: 20px; }
+
+    .panel {
+      background: linear-gradient(180deg, var(--panel), var(--panel-soft));
+      border: 1px solid var(--hair);
+      border-radius: 6px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 22px 28px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--hair);
+    }
+    .panel-title {
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .panel-description {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      max-width: 640px;
+      margin-top: 4px;
+    }
+
+    /* ---------- Signature: boarding-pass hero ---------- */
+    .hero {
+      margin: 22px 24px 6px;
+      border-radius: 8px;
+      background: var(--ink);
+      border: 1px solid var(--line);
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      overflow: hidden;
+    }
+    .hero-main {
+      padding: 24px 26px;
+      display: grid;
+      gap: 10px;
+      position: relative;
+    }
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-bright);
+    }
+    .hero h2 {
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 1.5rem;
+      color: var(--paper);
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 460px;
+    }
+    .hero-route {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--paper);
+    }
+    .hero-route .code {
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: rgba(201,162,39,0.06);
+    }
+    .hero-route .arrow { color: var(--gold); }
+
+    .hero-stub {
+      border-left: 1px dashed var(--line);
+      padding: 24px 22px;
+      display: grid;
+      gap: 12px;
+      align-content: center;
+      min-width: 168px;
+      background: rgba(201,162,39,0.04);
+      position: relative;
+    }
+    .hero-stub::before,
+    .hero-stub::after {
+      content: '';
+      position: absolute;
+      left: -8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--ink-deep);
+    }
+    .hero-stub::before { top: -8px; }
+    .hero-stub::after { bottom: -8px; }
+    .hero-feature {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+    }
+    .hero-feature b {
+      color: var(--gold-bright);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      font-size: 0.7rem;
+    }
+
+    @media (max-width: 640px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-stub { border-left: none; border-top: 1px dashed var(--line); }
+      .hero-stub::before, .hero-stub::after { left: 50%; top: -8px; transform: translateX(-50%); }
+      .hero-stub::after { bottom: auto; top: auto; }
+    }
+
+    /* ---------- Chat window ---------- */
+    .chat-window {
+      max-height: 68vh;
+      overflow-y: auto;
+      padding: 22px 24px 8px;
+      display: grid;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+    .chat-window::-webkit-scrollbar { width: 6px; }
+    .chat-window::-webkit-scrollbar-thumb { background: rgba(201,162,39,0.3); border-radius: 999px; }
+
+    .message {
+      display: grid;
+      gap: 10px;
+      padding: 15px 18px;
+      border-radius: 4px;
+      max-width: 78%;
+      animation: rise 0.3s ease;
+      position: relative;
+    }
+    @keyframes rise {
+      from { transform: translateY(10px); opacity: 0; }
+      to   { transform: none; opacity: 1; }
+    }
+    .message .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .message .bubble {
+      white-space: pre-wrap;
+      line-height: 1.65;
+      font-size: 0.96rem;
+    }
+
+    .message.user {
+      justify-self: end;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-right: 3px solid var(--gold);
+    }
+    .message.user .meta { color: var(--gold-bright); }
+    .message.user .bubble { color: var(--paper); }
+
+    .message.assistant {
+      justify-self: start;
+      background: var(--ink);
+      border: 1px solid var(--hair);
+      border-left: 3px solid var(--coral);
+    }
+    .message.assistant .meta { color: #e3a288; }
+    .message.assistant .bubble { color: var(--text); }
+
+    .message.typing {
+      display: inline-flex;
+      align-items: center;
+      padding: 14px 18px;
+    }
+    .typing-dots { display: flex; gap: 6px; }
+    .typing-dots div {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--coral);
+      animation: bounce 1s infinite;
+    }
+    .typing-dots div:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dots div:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.5); opacity: 0.5; }
+      40% { transform: scale(1.15); opacity: 1; }
+    }
+
+    @media (max-width: 640px) { .message { max-width: 92%; } }
+
+    /* ---------- Controls ---------- */
+    .controls {
+      display: grid;
+      gap: 16px;
+      padding: 20px 26px 26px;
+      border-top: 1px solid var(--hair);
+    }
+    .selectors {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .selectors label {
+      display: grid;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .selectors select {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: var(--ink);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.92rem;
+      padding: 12px 14px;
+      outline: none;
+      appearance: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .selectors select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,162,39,0.14);
+    }
+
+    .prompt-input {
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: var(--ink);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .prompt-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,162,39,0.12);
+    }
+    .prompt-input::placeholder { color: #5c6b80; }
+
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .action-bar .hint {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 13px 20px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: #1a1305;
+      box-shadow: 0 10px 24px rgba(201,162,39,0.22);
+    }
+    .btn-primary:hover:not([disabled]) {
+      background: var(--gold-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(201,162,39,0.3);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+    .btn-secondary:hover { color: var(--text); border-color: var(--gold); }
+    .btn[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ---------- Status pill ---------- */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 3px;
+      padding: 8px 14px;
+      border: 1px solid var(--hair);
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .status-pill .dot {
+      width: 7px; height: 7px; border-radius: 999px;
+      background: var(--green);
+    }
+    .status-pill.online { border-color: rgba(111,185,143,0.3); color: #a8dcbc; }
+    .status-pill.offline { border-color: rgba(217,120,120,0.3); color: #eab3b3; }
+    .status-pill.offline .dot { background: var(--red); }
+
+    @media (max-width: 820px) {
+      header { padding: 18px 20px; }
+      .panel-header { padding: 18px 20px; }
+      .hero { margin: 18px 16px 4px; }
+      .controls { padding: 18px 20px; }
+      .selectors { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="9" stroke="#1a1305" stroke-width="1.4"/>
+            <path d="M12 3v18M3 12h18M6 6.5c2 1.5 4 1.5 6 0s4-1.5 6 0M6 17.5c2-1.5 4-1.5 6 0s4 1.5 6 0" stroke="#1a1305" stroke-width="1.1"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <h1>Probix Translator</h1>
+          <p>A live conversational bridge between languages, polished for private demos and fresh installs.</p>
+        </div>
+      </div>
+      <div class="info-pill" id="page-info">SHOWCASE READY — FRESH PC FRIENDLY</div>
+    </header>
+
+    <div class="main-card">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-title">Live translation log</p>
+            <p class="panel-description">Enter text or questions in the source language and receive translated replies in the target language, refined for natural phrasing before it is shown.</p>
+          </div>
+          <div class="status-pill" id="server-status"><span class="dot"></span> Connecting…</div>
+        </div>
+
+        <div class="hero">
+          <div class="hero-main">
+            <span class="hero-eyebrow">Boarding · Probix AI Translator</span>
+            <h2>Showcase-ready translation, one install away</h2>
+            <p>Clone, install, and launch the demo on a fresh machine. Type below in your source language and receive a polished translation on the other side.</p>
+            <div class="hero-route">
+              <span class="code">EN</span>
+              <span class="arrow">✈ &nbsp;— — — — —▶</span>
+              <span class="code">YO</span>
+            </div>
+          </div>
+          <div class="hero-stub">
+            <div class="hero-feature"><b>ENGINE</b> NLLB</div>
+            <div class="hero-feature"><b>MODE</b> AI-refined</div>
+            <div class="hero-feature"><b>CLASS</b> Real-time</div>
+            <div class="hero-feature"><b>SETUP</b> npm install + npm run nllb:demo</div>
+          </div>
+        </div>
+
+        <div class="chat-window" id="chat-window">
+          <div class="message assistant" id="welcome-message">
+            <div class="meta"><span>Translator</span><span>NLLB + AI Brain</span></div>
+            <div class="bubble">Welcome! This demo is ready for a fresh machine setup. Choose your languages, type a prompt, and the AI brain will refine the translation before it appears.</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="selectors">
+            <label>
+              Source language
+              <select id="source-language" aria-label="Source language"></select>
+            </label>
+            <label>
+              Target language
+              <select id="target-language" aria-label="Target language"></select>
+            </label>
+          </div>
+          <label style="display:block; width:100%;">
+            <span style="font-family:'JetBrains Mono', monospace; font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);">Ask or paste text to translate</span>
+            <textarea id="message-input" class="prompt-input" placeholder="Ask a question or paste text here..." rows="4" style="margin-top:6px;"></textarea>
+          </label>
+          <div class="action-bar">
+            <span class="hint">Press Enter + Shift to add a new line. Click send to translate.</span>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button class="btn btn-secondary" id="clear-chat">Clear chat</button>
+              <button class="btn btn-primary" id="send-message">Send →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const baseUrl =
+      window.location.protocol === 'http:' || window.location.protocol === 'https:'
+        ? window.location.origin
+        : 'http://localhost:3000';
+    const chatWindow = document.getElementById('chat-window');
+    const sourceLang = document.getElementById('source-language');
+    const targetLang = document.getElementById('target-language');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-message');
+    const clearButton = document.getElementById('clear-chat');
+    const serverStatus = document.getElementById('server-status');
+    const pageInfo = document.getElementById('page-info');
+
+    const defaultLanguages = [
+      { name: 'English', code: 'eng_Latn' },
+      { name: 'Yoruba', code: 'yor_Latn' },
+      { name: 'Spanish', code: 'spa_Latn' },
+      { name: 'French', code: 'fra_Latn' },
+      { name: 'Hindi', code: 'hin_Deva' },
+      { name: 'Chinese (Simplified)', code: 'zho_Hans' },
+    ];
+
+    function createOption(language) {
+      const option = document.createElement('option');
+      option.value = language.code;
+      option.textContent = `${language.name} (${language.code})`;
+      return option;
+    }
+
+    function setServerStatus(online) {
+      const dot = serverStatus.querySelector('.dot');
+      if (online) {
+        serverStatus.classList.remove('offline');
+        serverStatus.classList.add('online');
+        dot.style.background = 'var(--green)';
+        serverStatus.textContent = 'Online — translator ready';
+        serverStatus.prepend(dot);
+      } else {
+        serverStatus.classList.remove('online');
+        serverStatus.classList.add('offline');
+        dot.style.background = 'var(--red)';
+        serverStatus.textContent = 'Offline — server unavailable';
+        serverStatus.prepend(dot);
+      }
+    }
+
+    function appendMessage(role, text) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `message ${role}`;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      const roleLabel = document.createElement('span');
+      roleLabel.textContent = role === 'user' ? 'You' : 'Translator';
+      const note = document.createElement('span');
+      note.textContent = role === 'user' ? 'Source text' : 'Translated reply';
+      meta.append(roleLabel, note);
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      wrapper.append(meta, bubble);
+      chatWindow.append(wrapper);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function appendError(message) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'message assistant';
+      wrapper.style.borderLeftColor = 'var(--red)';
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.innerHTML = '<span>Translator</span><span style="color: var(--red);">Error</span>';
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = message;
+      wrapper.append(meta, bubble);
+      chatWindow.append(wrapper);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    // ---------- Typing indicator helpers (visual only, no logic change) ----------
+    function showTypingIndicator() {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'message assistant typing';
+      wrapper.id = 'typing-indicator';
+      const dots = document.createElement('div');
+      dots.className = 'typing-dots';
+      dots.innerHTML = '<div></div><div></div><div></div>';
+      wrapper.append(dots);
+      chatWindow.append(wrapper);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const existing = document.getElementById('typing-indicator');
+      if (existing) existing.remove();
+    }
+
+    async function loadLanguages() {
+      try {
+        const res = await fetch(`${baseUrl}/api/translate/languages`);
+        if (!res.ok) throw new Error('Failed to load languages');
+        const data = await res.json();
+        const languages = Array.isArray(data.data) ? data.data : defaultLanguages;
+        sourceLang.innerHTML = '';
+        targetLang.innerHTML = '';
+        languages.forEach(lang => {
+          sourceLang.append(createOption(lang));
+          targetLang.append(createOption(lang));
+        });
+        sourceLang.value = 'eng_Latn';
+        targetLang.value = 'yor_Latn';
+        setServerStatus(true);
+        pageInfo.textContent = 'LANGUAGES LOADED — READY TO TRANSLATE';
+      } catch (error) {
+        console.warn('Language fetch failed:', error);
+        sourceLang.innerHTML = '';
+        targetLang.innerHTML = '';
+        defaultLanguages.forEach(lang => {
+          sourceLang.append(createOption(lang));
+          targetLang.append(createOption(lang));
+        });
+        sourceLang.value = 'eng_Latn';
+        targetLang.value = 'yor_Latn';
+        appendError('Could not load language list. Using default options.');
+        setServerStatus(false);
+      }
+    }
+
+    async function translateText() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      appendMessage('user', text);
+      messageInput.value = '';
+      sendButton.disabled = true;
+      sendButton.textContent = 'Translating…';
+      showTypingIndicator();
+
+      const payload = {
+        text,
+        sourceLang: sourceLang.value,
+        targetLang: targetLang.value,
+      };
+
+      try {
+        const res = await fetch(`${baseUrl}/api/translate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const result = await res.json();
+        if (!res.ok || !result.success) {
+          throw new Error(result.message || 'Translation request failed');
+        }
+        const translatedText = result.data?.translatedText || 'No translation returned.';
+        hideTypingIndicator();
+        appendMessage('assistant', translatedText);
+        setServerStatus(true);
+      } catch (error) {
+        hideTypingIndicator();
+        appendError(error.message || 'Translation API error');
+        setServerStatus(false);
+      } finally {
+        sendButton.disabled = false;
+        sendButton.innerHTML = 'Send →';
+        messageInput.focus();
+      }
+    }
+
+    clearButton.addEventListener('click', () => {
+      chatWindow.innerHTML = '';
+      const welcome = document.createElement('div');
+      welcome.className = 'message assistant';
+      welcome.innerHTML = '<div class="meta"><span>Translator</span><span>NLLB + AI Brain</span></div><div class="bubble">Welcome! Choose source and target languages, then type anything to translate. The AI brain will refine the translated reply before it appears.</div>';
+      chatWindow.append(welcome);
+      messageInput.focus();
+    });
+
+    sendButton.addEventListener('click', translateText);
+
+    messageInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        translateText();
+      }
+    });
+
+    window.addEventListener('load', loadLanguages);
+  </script>
+</body>
+</html>

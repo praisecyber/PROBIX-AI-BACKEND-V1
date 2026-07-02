@@ -1,0 +1,232 @@
+{
+  "coefficients": [
+    [
+      0.9449934250843499
+    ],
+    [
+      0.00040880246901772423
+    ],
+    [
+      0.012978606529077992
+    ],
+    [
+      -0.00112904196360677
+    ],
+    [
+      -0.001677819009821668
+    ],
+    [
+      0.0011847255972779957
+    ],
+    [
+      0.000025311907438016197
+    ],
+    [
+      0.0065236093043334
+    ],
+    [
+      0.011265342465801619
+    ],
+    [
+      0.005105214439285634
+    ],
+    [
+      0.005432977532692438
+    ],
+    [
+      0.005366110519745026
+    ],
+    [
+      0.04060936496213257
+    ],
+    [
+      0.027341648034107095
+    ],
+    [
+      -0.06403600972173648
+    ],
+    [
+      -0.02014592992959073
+    ],
+    [
+      0.04992418091694866
+    ],
+    [
+      0.010168013464884289
+    ],
+    [
+      0.012772905660734439
+    ],
+    [
+      0.007915580946210938
+    ],
+    [
+      0.0549291120593214
+    ],
+    [
+      -0.052092357869292304
+    ],
+    [
+      -0.0018901395181200357
+    ],
+    [
+      0.0431843433166987
+    ],
+    [
+      -0.007600949536719679
+    ],
+    [
+      0.022070963446648655
+    ],
+    [
+      0.011622290815205947
+    ],
+    [
+      0.01914116263774919
+    ],
+    [
+      -0.000499689187575403
+    ],
+    [
+      0.015051780811682703
+    ],
+    [
+      0.011155568118330631
+    ],
+    [
+      0.010662472214936955
+    ],
+    [
+      0.011875213928589987
+    ],
+    [
+      0.008298209221437808
+    ],
+    [
+      0.007506648005776388
+    ],
+    [
+      0.008793829708720554
+    ],
+    [
+      0.009094567325923777
+    ],
+    [
+      -0.17181879037861303
+    ],
+    [
+      0.02684036722321383
+    ],
+    [
+      0.025362789092158337
+    ],
+    [
+      0.15330888832509987
+    ],
+    [
+      0.007295853937711782
+    ],
+    [
+      0.0056135661090679296
+    ],
+    [
+      0.007817122727267301
+    ],
+    [
+      0.006795200914849479
+    ],
+    [
+      0.00617151057296252
+    ],
+    [
+      0.033693254261859006
+    ]
+  ],
+  "intercept": true,
+  "targetField": "Post_Semester_GPA",
+  "numericFields": [
+    "Pre_Semester_GPA",
+    "Weekly_GenAI_Hours",
+    "Traditional_Study_Hours",
+    "Perceived_AI_Dependency",
+    "Anxiety_Level_During_Exams",
+    "Skill_Retention_Score",
+    "Tool_Diversity"
+  ],
+  "categoricalFields": [
+    "Major_Category",
+    "Year_of_Study",
+    "Primary_Use_Case",
+    "Prompt_Engineering_Skill",
+    "Paid_Subscription",
+    "Institutional_Policy",
+    "Age_Group",
+    "Learning_Style",
+    "Tech_Access_Level",
+    "Native_Language"
+  ],
+  "categoryMaps": {
+    "Major_Category": [
+      "Humanities",
+      "Medical",
+      "Business",
+      "STEM",
+      "Arts"
+    ],
+    "Year_of_Study": [
+      "Senior",
+      "Junior",
+      "Freshman",
+      "Sophomore",
+      "Graduate"
+    ],
+    "Primary_Use_Case": [
+      "Copywriting/Drafting",
+      "Ideation",
+      "Summarizing_Reading",
+      "Debugging/Troubleshooting",
+      "Direct_Answer_Generation"
+    ],
+    "Prompt_Engineering_Skill": [
+      "Beginner",
+      "Advanced",
+      "Intermediate"
+    ],
+    "Paid_Subscription": [
+      "True",
+      "False"
+    ],
+    "Institutional_Policy": [
+      "Allowed_With_Citation",
+      "Strict_Ban",
+      "Actively_Encouraged"
+    ],
+    "Age_Group": [
+      "Adult",
+      "Young_Adult",
+      "Teen"
+    ],
+    "Learning_Style": [
+      "Visual",
+      "Kinesthetic",
+      "Reading/Writing",
+      "Auditory"
+    ],
+    "Tech_Access_Level": [
+      "Limited",
+      "Mobile-Only",
+      "Shared Device",
+      "High-Speed Internet"
+    ],
+    "Native_Language": [
+      "Pidgin",
+      "Igbo",
+      "Yoruba",
+      "Hausa",
+      "English"
+    ]
+  },
+  "rows": 50000,
+  "rmse": 0.15956306315325747,
+  "timestamp": "2026-05-23T09:17:40.905Z"
+}

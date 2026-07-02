@@ -1,0 +1,11 @@
+{
+  "name": "probix-nllb-translator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "coverage:sample": "node test_all.js --sample",
+    "coverage:full": "node test_all.js --all",
+    "start": "node inference.js --interactive",
+    "setup": "node setup.js"
+  }
+}

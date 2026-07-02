@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Model cache (large files)
+model_cache/
+!model_cache/
+!model_cache/**
+!model_cache/**/*.onnx
+!model_cache/**/*.bin
+!model_cache/**/*.json
+models/
+!models/
+!models/**
+*.onnx
+!*.onnx
+*.bin
+!*.bin
+
+# Training outputs
+training-data/
+output/
+checkpoints/
+*.pt
+*.pth
+*.h5
+*.safetensors
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test outputs
+test_*.txt
+test_*.json
+test_output*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Build
+dist/
+build/
+*.tgz

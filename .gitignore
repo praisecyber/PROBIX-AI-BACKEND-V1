@@ -1,0 +1,81 @@
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+.nyc_output/
+coverage/
+.cache/
+.tmp/
+ai_models/gemma/
+ai_models/kokoro/
+ai_models/mistral-inference/
+.env
+.env.local
+.env.*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+*.sqlite
+*.sqlite3
+*.db
+*.pem
+*.key
+*.crt
+uploads/
+storage/
+logs/
+
+# Kaggle & dataset artifacts
+nllb-translator/kaggle_data/
+nlp-predictor-pro/data/
+
+# Do NOT commit Kaggle credentials
+nllb-translator/kaggle_data/Kaggle.json
+nllb-translator/kaggle_data/*.json
+nlp-predictor-pro/data/*.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Model weights and caches
+models/*/weights/
+mistral-inference/weights/
+gemma/weights/
+kokoro/weights/
+ai_models/*/weights/
+model_cache/
+# Keep the NLLB translation model cache in the repo for showcase installs
+!nllb-translator/model_cache/
+!nllb-translator/model_cache/**
+!nllb-translator/model_cache/**/*.onnx
+!nllb-translator/model_cache/**/*.bin
+!nllb-translator/model_cache/**/*.json
+
+# Large local assets and model binaries
+*.zip
+*.bin
+*.fst
+*.mdl
+*.ie
+*.dubm
+*.mat
+*.onnx
+ai_models.zip
+nllb-translator.zip
+vosk-whisper.zip
+vosk-whisper/
+
+# IDE and system
+.vscode/
+.idea/
+.pm2/
+

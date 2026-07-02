@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Probix AI — Test Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #070b14;
+      --surface:   #0d1526;
+      --surface2:  #111d35;
+      --border:    rgba(99,179,237,0.12);
+      --accent:    #6366f1;
+      --accent2:   #06b6d4;
+      --accent3:   #8b5cf6;
+      --green:     #10b981;
+      --red:       #ef4444;
+      --orange:    #f59e0b;
+      --text:      #e2e8f0;
+      --text-muted:#7891b0;
+      --glow:      0 0 24px rgba(99,102,241,0.35);
+      --glow2:     0 0 24px rgba(6,182,212,0.35);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Ambient glow orbs */
+    body::before {
+      content:'';
+      position:fixed; top:-200px; left:-200px;
+      width:600px; height:600px;
+      background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+      pointer-events:none; z-index:0;
+    }
+    body::after {
+      content:'';
+      position:fixed; bottom:-150px; right:-150px;
+      width:500px; height:500px;
+      background: radial-gradient(circle, rgba(6,182,212,0.10) 0%, transparent 70%);
+      pointer-events:none; z-index:0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; z-index:10;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,21,38,0.8);
+      backdrop-filter: blur(12px);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: var(--glow);
+    }
+    .logo h1 {
+      font-size: 1.25rem; font-weight: 700;
+      background: linear-gradient(90deg, #a5b4fc, #67e8f9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo span {
+      font-size: 0.7rem; font-weight: 500;
+      color: var(--text-muted);
+      display: block;
+      -webkit-text-fill-color: var(--text-muted);
+      margin-top: -2px;
+    }
+    .server-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 6px 14px; border-radius: 20px; font-size: 0.8rem;
+    }
+    .server-badge .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── AUTH BAR ── */
+    #auth-bar {
+      position: relative; z-index:10;
+      background: rgba(17,29,53,0.9);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 32px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    #auth-bar label { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+    #auth-bar input {
+      flex: 1; min-width: 260px; max-width: 520px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem; padding: 6px 12px; border-radius: 6px;
+      outline: none;
+    }
+    #auth-bar input:focus { border-color: var(--accent); }
+    .btn-sm {
+      padding: 6px 14px; border-radius: 6px; font-size: 0.78rem;
+      font-family: 'Inter', sans-serif; font-weight: 500;
+      cursor: pointer; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text);
+      transition: all 0.2s;
+    }
+    .btn-sm:hover { background: var(--surface); border-color: var(--accent2); }
+    .auth-status { font-size: 0.78rem; color: var(--text-muted); }
+    .auth-status.ok { color: var(--green); }
+
+    /* ── TABS ── */
+    .tabs-wrap {
+      position: relative; z-index:10;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 4px;
+      background: rgba(7,11,20,0.6);
+      backdrop-filter: blur(8px);
+    }
+    .tab {
+      padding: 14px 20px; font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; border: none; background: none;
+      color: var(--text-muted); border-bottom: 2px solid transparent;
+      transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+      font-family: 'Inter', sans-serif;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      color: var(--accent2); border-bottom-color: var(--accent2);
+    }
+    .tab .tab-icon { font-size: 1rem; }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      position: relative; z-index:5;
+      max-width: 1200px; margin: 0 auto;
+      padding: 32px;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 0.95rem; font-weight: 600;
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text);
+    }
+    .card-title .badge {
+      font-size: 0.65rem; padding: 2px 8px;
+      background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 20px; color: #a5b4fc; font-weight: 500;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media(max-width:768px){ .grid-2{grid-template-columns:1fr;} }
+
+    /* ── INPUTS ── */
+    textarea, select, input[type=text], input[type=number] {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); font-family: 'Inter', sans-serif;
+      font-size: 0.88rem; padding: 12px 14px; border-radius: 10px;
+      outline: none; resize: vertical; transition: border-color 0.2s;
+    }
+    textarea { min-height: 100px; }
+    textarea:focus, select:focus, input[type=text]:focus, input[type=number]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+    label.field-label {
+      display: block; font-size: 0.78rem; font-weight: 500;
+      color: var(--text-muted); margin-bottom: 6px;
+    }
+    .field { margin-bottom: 16px; }
+
+    select option { background: var(--surface2); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border-radius: 10px; font-size: 0.88rem;
+      font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.5); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent2); }
+    .btn-danger {
+      background: rgba(239,68,68,0.15); color: var(--red);
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.25); }
+    .btn-record {
+      background: linear-gradient(135deg, var(--green), #059669);
+      color: #fff; font-size: 1rem; padding: 14px 32px;
+      box-shadow: 0 4px 20px rgba(16,185,129,0.4);
+    }
+    .btn-record.recording {
+      background: linear-gradient(135deg, var(--red), #dc2626);
+      box-shadow: 0 4px 20px rgba(239,68,68,0.4);
+      animation: record-pulse 1.2s infinite;
+    }
+    @keyframes record-pulse { 0%,100%{box-shadow:0 4px 20px rgba(239,68,68,0.4)} 50%{box-shadow:0 4px 32px rgba(239,68,68,0.7)} }
+    .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+
+    /* ── WAVEFORM ── */
+    #waveform-canvas {
+      width: 100%; height: 80px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px; display: block;
+      margin-bottom: 16px;
+    }
+
+    /* ── PIPELINE STAGES ── */
+    .pipeline {
+      display: flex; gap: 8px; margin-bottom: 20px;
+      flex-wrap: wrap; align-items: center;
+    }
+    .stage {
+      padding: 5px 14px; border-radius: 20px; font-size: 0.75rem;
+      font-weight: 600; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text-muted);
+      transition: all 0.3s; letter-spacing: 0.05em;
+    }
+    .stage.active {
+      border-color: var(--orange); color: var(--orange);
+      background: rgba(245,158,11,0.1);
+      box-shadow: 0 0 12px rgba(245,158,11,0.3);
+      animation: stage-blink 0.8s infinite alternate;
+    }
+    @keyframes stage-blink { from{opacity:0.7} to{opacity:1} }
+    .stage.done { border-color: var(--green); color: var(--green); background: rgba(16,185,129,0.08); }
+    .stage-arrow { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* ── RESPONSE BOX ── */
+    .response-box {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px;
+      font-size: 0.9rem; line-height: 1.7;
+      min-height: 80px; white-space: pre-wrap;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      position: relative;
+    }
+    .response-box.user-box {
+      border-left: 3px solid var(--accent2);
+      background: rgba(6,182,212,0.05);
+    }
+    .response-box.ai-box {
+      border-left: 3px solid var(--accent3);
+      background: rgba(139,92,246,0.05);
+    }
+    .response-box.empty { color: var(--text-muted); font-style: italic; }
+    .response-label {
+      font-size: 0.7rem; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .response-label span { font-weight: 700; }
+
+    /* ── META TAGS ── */
+    .meta-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;
+    }
+    .meta-tag {
+      font-size: 0.72rem; padding: 3px 10px;
+      border-radius: 20px; font-family: 'JetBrains Mono', monospace;
+    }
+    .meta-tag.engine { background: rgba(99,102,241,0.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2); }
+    .meta-tag.lang   { background: rgba(6,182,212,0.12); color: #67e8f9; border: 1px solid rgba(6,182,212,0.2); }
+    .meta-tag.conf   { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
+    .meta-tag.latency{ background: rgba(245,158,11,0.12); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
+    .meta-tag.model  { background: rgba(139,92,246,0.12); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.2); }
+    .meta-tag.topic  { background: rgba(236,72,153,0.12); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.2); }
+
+    /* ── STATUS GRID ── */
+    .status-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+      gap: 12px;
+    }
+    .status-item {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px;
+    }
+    .status-item .s-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 6px; }
+    .status-item .s-value { font-size: 0.88rem; font-weight: 600; }
+    .s-ok { color: var(--green); }
+    .s-warn { color: var(--orange); }
+    .s-err { color: var(--red); }
+
+    /* ── AUDIO PLAYER ── */
+    .audio-player {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .audio-player audio { flex: 1; }
+
+    /* ── CHAT HISTORY ── */
+    .chat-history {
+      max-height: 420px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px;
+      padding-right: 4px;
+    }
+    .chat-history::-webkit-scrollbar { width: 4px; }
+    .chat-history::-webkit-scrollbar-track { background: transparent; }
+    .chat-history::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .chat-msg {
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .chat-msg.user { flex-direction: row-reverse; }
+    .chat-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
+    }
+    .chat-msg.user .chat-avatar { background: linear-gradient(135deg, var(--accent2), var(--accent)); }
+    .chat-msg.ai .chat-avatar { background: linear-gradient(135deg, var(--accent3), var(--accent)); }
+    .chat-bubble {
+      max-width: 80%; padding: 12px 16px; border-radius: 14px;
+      font-size: 0.88rem; line-height: 1.6; white-space: pre-wrap;
+    }
+    .chat-msg.user .chat-bubble {
+      background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2);
+      border-radius: 14px 4px 14px 14px;
+    }
+    .chat-msg.ai .chat-bubble {
+      background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 4px 14px 14px 14px;
+    }
+
+    /* ── MEMORY PANEL ── */
+    .memory-entry {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px; margin-bottom: 8px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .memory-role {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 20px; white-space: nowrap;
+    }
+    .memory-role.user { background: rgba(6,182,212,0.15); color: #67e8f9; }
+    .memory-role.assistant { background: rgba(139,92,246,0.15); color: #c4b5fd; }
+    .memory-text { font-size: 0.84rem; color: var(--text); line-height: 1.5; flex: 1; }
+    .memory-ts { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 18px;
+      font-size: 0.85rem; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.3s; max-width: 340px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 3px solid var(--green); }
+    #toast.error   { border-left: 3px solid var(--red); }
+    #toast.info    { border-left: 3px solid var(--accent2); }
+
+    /* ── VOLUME METER ── */
+    .volume-bar {
+      height: 6px; background: var(--surface2);
+      border-radius: 3px; overflow: hidden; margin-bottom: 12px;
+    }
+    .volume-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--green), var(--accent2));
+      transition: width 0.05s;
+    }
+
+    /* ── MISC ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .section-title {
+      font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;
+    }
+    .empty-state {
+      text-align: center; padding: 32px; color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <div>
+      <h1>PROBIX AI</h1>
+      <span>Test Console v2.0</span>
+    </div>
+  </div>
+  <div class="server-badge">
+    <div class="dot" id="server-dot"></div>
+    <span id="server-status-text">Connecting...</span>
+  </div>
+</header>
+
+<!-- AUTH BAR -->
+<div id="auth-bar">
+  <label>🔑 JWT Token (required for Voice-to-Voice):</label>
+  <input type="text" id="jwt-token" placeholder="Paste your Bearer token here (login via /api/auth/login)..." />
+  <button class="btn-sm" id="auth-verify-btn">Verify</button>
+  <button class="btn-sm" id="auth-quick-login-btn">Quick Login</button>
+  <span class="auth-status" id="auth-status">No token set</span>
+</div>
+
+<!-- QUICK LOGIN MODAL -->
+<div id="login-modal" style="display:none; position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;width:380px;max-width:95vw;">
+    <div style="font-size:1.1rem;font-weight:700;margin-bottom:20px;">Quick Login</div>
+    <div class="field"><label class="field-label">Email</label><input type="text" id="login-email" placeholder="your@email.com" /></div>
+    <div class="field"><label class="field-label">Password</label><input type="text" id="login-password" placeholder="••••••••" /></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="login-action-btn">Login & Get Token</button>
+      <button class="btn btn-secondary" id="login-cancel-btn">Cancel</button>
+    </div>
+    <div id="login-msg" style="margin-top:12px;font-size:0.82rem;color:var(--text-muted);"></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <button class="tab active" id="tab-voice">
+    <span class="tab-icon">🎙️</span> Voice-to-Voice
+  </button>
+  <button class="tab" id="tab-brain">
+    <span class="tab-icon">🧠</span> AI Brain
+  </button>
+  <button class="tab" id="tab-tts">
+    <span class="tab-icon">🔊</span> Text-to-Speech
+  </button>
+  <button class="tab" id="tab-status">
+    <span class="tab-icon">📊</span> System Status
+  </button>
+  <button class="tab" id="tab-memory">
+    <span class="tab-icon">💾</span> Memory
+  </button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ═══════════════════════════════════════════════════
+       PANEL: VOICE-TO-VOICE
+  ═══════════════════════════════════════════════════ -->
+  <div class="panel active" id="panel-voice">
+    <div class="grid-2">
+      <!-- Left: recorder -->
+      <div>
+        <div class="card">
+          <div class="card-title">🎙️ Voice Input <span class="badge">STT Engine</span></div>
+
+          <!-- Pipeline stages -->
+          <div class="pipeline" id="v2v-pipeline">
+            <div class="stage" id="stg-record">⏺ RECORD</div>
+            <div class="stage-arrow">→</div>
+            <div class="stage" id="stg-stt">🗣 STT</div>
+            <div class="stage-arrow">→</div>
+            <div class="stage" id="stg-ai">🧠 AI</div>
+            <div class="stage-arrow">→</div>
+            <div class="stage" id="stg-out">✅ DONE</div>
+          </div>
+
+          <!-- Waveform -->
+          <canvas id="waveform-canvas"></canvas>
+
+          <!-- Volume -->
+          <div class="volume-bar"><div class="volume-fill" id="vol-fill" style="width:0%"></div></div>
+
+          <!-- Controls -->
+          <div class="field">
+            <label class="field-label">Language</label>
+            <select id="v2v-lang">
+              <option value="">smart-auto (recommended)</option>
+              <option value="en">English</option>
+              <option value="fr">French</option>
+              <option value="ar">Arabic</option>
+              <option value="de">German</option>
+              <option value="es">Spanish</option>
+              <option value="zh">Chinese</option>
+              <option value="hi">Hindi</option>
+              <option value="ru">Russian</option>
+              <option value="ja">Japanese</option>
+              <option value="auto">Auto-Detect</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">STT Strategy</label>
+            <select id="v2v-strategy">
+              <option value="">parallel (default)</option>
+              <option value="whisper-first">whisper-first</option>
+              <option value="vosk-first">vosk-first</option>
+            </select>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-record" id="record-btn">
+              ⏺ Start Recording
+            </button>
+            <button class="btn btn-secondary" id="send-voice-btn" disabled>
+              🚀 Send to AI
+            </button>
+          </div>
+          
+          <!-- Microphone Troubleshooting -->
+          <div id="mic-troubleshooting" style="margin-top:16px;padding:12px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);">
+            <div style="font-weight:600;margin-bottom:8px;color:var(--text);">⚠️ No Microphone Detected</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">
+              Please follow these steps:
+            </div>
+            <ol style="font-size:0.8rem;color:var(--text-muted);padding-left:16px;margin-bottom:12px;">
+              <li style="margin-bottom:4px;"><strong>Check OS Sound Settings</strong>: Make sure your microphone is plugged in and selected as the input device</li>
+              <li style="margin-bottom:4px;"><strong>Close Other Apps</strong>: Close Zoom, Teams, Discord, or any other app using your microphone</li>
+              <li style="margin-bottom:4px;"><strong>Refresh Browser Permissions</strong>: Click the 🔒 lock icon next to the URL, set "Microphone" to "Allow", then refresh the page</li>
+              <li style="margin-bottom:4px;"><strong>Try a Different Browser</strong>: Use Chrome, Edge, or Firefox</li>
+            </ol>
+            <button class="btn btn-secondary" id="recheck-mic-btn" style="font-size:0.8rem;padding:6px 12px;">
+              🔄 Re-Check Microphones
+            </button>
+          </div>
+          
+          <div id="record-timer" style="margin-top:10px;font-size:0.8rem;color:var(--text-muted);"></div>
+        </div>
+      </div>
+
+      <!-- Right: results -->
+      <div>
+        <div class="card">
+          <div class="card-title">📝 Transcription</div>
+          <div class="response-label"><span>WHAT YOU SAID</span></div>
+          <div class="response-box user-box empty" id="v2v-transcript">Speak and your words will appear here...</div>
+          <div class="meta-row" id="v2v-stt-meta"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🤖 AI Response</div>
+          <div class="response-label"><span>PROBIX AI</span></div>
+          <div class="response-box ai-box empty" id="v2v-ai-response">AI response will appear here...</div>
+          <div class="meta-row" id="v2v-ai-meta"></div>
+          <div class="btn-row" id="v2v-tts-row" style="display:none;">
+            <button class="btn btn-secondary" id="play-ai-btn">🔊 Play Response</button>
+            <audio id="v2v-audio" controls autoplay style="flex:1;"></audio>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PANEL: AI BRAIN
+  ═══════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-brain">
+    <div class="grid-2">
+      <!-- Left: chat -->
+      <div>
+        <div class="card" style="height:calc(100% - 20px)">
+          <div class="card-title">🧠 AI Brain Console <span class="badge">Mistral + Gemma Fusion</span></div>
+
+          <div class="chat-history" id="brain-chat-history">
+            <div class="empty-state">
+              <div class="empty-icon">🤖</div>
+              <div>Start a conversation with the AI Brain</div>
+            </div>
+          </div>
+
+          <hr />
+          <div class="field" style="margin-bottom:10px;">
+            <textarea id="brain-prompt" rows="3" placeholder="Ask anything... (e.g. 'Explain how neural networks work', 'Write a Python function to sort a list')"></textarea>
+          </div>
+          <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label">Model</label>
+              <select id="brain-model">
+                <option value="merge">🔀 Merge (Mistral+Gemma fusion)</option>
+                <option value="mistral">⚡ Mistral (Primary Intelligence)</option>
+                <option value="gemma">📘 Gemma (Quality+Education)</option>
+                <option value="fusion">🔗 Pipeline (Draft→Refine)</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label">User ID (Memory)</label>
+              <input type="text" id="brain-userid" value="test-user-001" placeholder="userId for memory" />
+            </div>
+          </div>
+          <div class="grid-2" style="gap:10px;margin-bottom:14px;">
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label">Max Tokens</label>
+              <input type="number" id="brain-maxtokens" value="1024" min="64" max="4096" />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label">Temperature</label>
+              <input type="number" id="brain-temp" value="0.7" min="0" max="2" step="0.1" />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="brain-send-btn">
+              🚀 Send to AI Brain
+            </button>
+            <button class="btn btn-secondary" id="brain-clear-btn">🗑 Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: raw response -->
+      <div>
+        <div class="card">
+          <div class="card-title">📤 Raw Response</div>
+          <div class="response-label" id="brain-model-label"><span>MODEL OUTPUT</span></div>
+          <div class="response-box ai-box empty" id="brain-raw-response" style="min-height:180px;">Raw AI output will appear here...</div>
+          <div class="meta-row" id="brain-meta-row"></div>
+        </div>
+        <div class="card" id="brain-fusion-card" style="display:none;">
+          <div class="card-title">🔀 Fusion Details</div>
+          <div class="section-title">Mistral Output</div>
+          <div class="response-box" id="brain-mistral-out" style="min-height:60px;font-size:0.82rem;max-height:140px;overflow-y:auto;"></div>
+          <br>
+          <div class="section-title">Gemma Output</div>
+          <div class="response-box" id="brain-gemma-out" style="min-height:60px;font-size:0.82rem;max-height:140px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PANEL: TTS
+  ═══════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-tts">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title">🔊 Text-to-Speech <span class="badge">Kokoro + ElevenLabs</span></div>
+          <div class="field">
+            <label class="field-label">Text to speak</label>
+            <textarea id="tts-text" rows="5" placeholder="Enter text to convert to speech...">Hello! I am Probix AI, your intelligent voice assistant. How can I help you today?</textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Language</label>
+            <select id="tts-lang">
+              <option value="en">English (Kokoro — af_bella)</option>
+              <option value="fr">French (Kokoro — ff_siwis)</option>
+              <option value="es">Spanish (Kokoro — es_dani)</option>
+              <option value="it">Italian (Kokoro — it_nicola)</option>
+              <option value="pt">Portuguese (Kokoro — pt_dinis)</option>
+              <option value="ja">Japanese (Kokoro — jf_alpha)</option>
+              <option value="zh">Chinese (Kokoro — zf_xiaobei)</option>
+              <option value="ar">Arabic (ElevenLabs)</option>
+              <option value="ko">Korean (ElevenLabs)</option>
+              <option value="ru">Russian (ElevenLabs)</option>
+              <option value="hi">Hindi (ElevenLabs)</option>
+              <option value="de">German (ElevenLabs)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Speed (0.5 – 2.0)</label>
+            <input type="number" id="tts-speed" value="1.0" min="0.5" max="2.0" step="0.1" />
+          </div>
+          <div class="field">
+            <label class="field-label">Voice Override (optional)</label>
+            <input type="text" id="tts-voice" placeholder="e.g. af_bella, af_sky, pNInz6obpgDQGcFmaJgB" />
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;margin-bottom:14px;cursor:pointer;">
+            <input type="checkbox" id="tts-fallback" style="width:auto;" />
+            Force ElevenLabs (skip Kokoro)
+          </label>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="tts-btn">🔊 Generate Speech</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">🎵 Audio Output</div>
+          <div id="tts-result-empty" class="empty-state" style="padding:48px 0;">
+            <div class="empty-icon">🔇</div>
+            <div>Generate speech to hear it here</div>
+          </div>
+          <div id="tts-result" style="display:none;">
+            <div class="audio-player">
+              <audio id="tts-audio" controls style="width:100%;"></audio>
+            </div>
+            <div class="meta-row" id="tts-meta" style="margin-top:12px;"></div>
+            <div style="margin-top:14px;">
+              <a id="tts-download" download="probix-tts.wav" class="btn btn-secondary" style="text-decoration:none;">⬇️ Download WAV</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick TTS test buttons -->
+        <div class="card">
+          <div class="card-title">⚡ Quick Tests</div>
+          <div class="btn-row" style="flex-direction:column;align-items:stretch;">
+            <button class="btn btn-secondary quick-tts" data-text="Hello, this is Probix AI. The voice-to-voice pipeline is working perfectly." data-lang="en">🇺🇸 English Test</button>
+            <button class="btn btn-secondary quick-tts" data-text="Bonjour! Je suis Probix AI, votre assistant vocal intelligent." data-lang="fr">🇫🇷 French Test</button>
+            <button class="btn btn-secondary quick-tts" data-text="Hola! Soy Probix AI, tu asistente de voz inteligente." data-lang="es">🇪🇸 Spanish Test</button>
+            <button class="btn btn-secondary quick-tts" data-text="こんにちは！私はProbix AIです、あなたの音声アシスタントです。" data-lang="ja">🇯🇵 Japanese Test</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PANEL: STATUS
+  ═══════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-status">
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        📊 System Status
+        <button class="btn btn-secondary" style="font-size:0.8rem;padding:7px 14px;" id="status-refresh-btn">🔄 Refresh</button>
+      </div>
+      <div id="status-content">
+        <div class="empty-state"><div class="empty-icon">⏳</div><div>Loading system status...</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔌 API Health Check</div>
+      <div class="status-grid" id="health-grid"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PANEL: MEMORY
+  ═══════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-memory">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title">💾 Conversation Memory</div>
+          <div class="field">
+            <label class="field-label">User ID</label>
+            <input type="text" id="mem-userid" value="test-user-001" />
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="memory-load-btn">📥 Load Memory</button>
+            <button class="btn btn-danger" id="memory-clear-btn">🗑 Clear Memory</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">🧬 User Profile</div>
+          <div id="mem-profile" class="response-box empty" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">Profile will appear here...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💬 Conversation History</div>
+      <div id="mem-history">
+        <div class="empty-state"><div class="empty-icon">💬</div><div>Load memory to see conversation history</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="probix-test.js"></script>
+</body>
+</html>

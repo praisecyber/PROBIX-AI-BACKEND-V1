@@ -1,0 +1,31 @@
+{
+  "targetField": "Post_Semester_GPA",
+  "modelFile": "C:\\Users\\PRAISECYBER\\Desktop\\PROJECT 2026\\PROBIX-AI-BACKEND-V1-main\\nlp-predictor-pro\\models\\student_predictive_model_Post_Semester_GPA.json",
+  "rows": 50000,
+  "rmse": 0.15956306315325747,
+  "mean": 3.332169319999985,
+  "min": 1,
+  "max": 4,
+  "numericFields": [
+    "Pre_Semester_GPA",
+    "Weekly_GenAI_Hours",
+    "Traditional_Study_Hours",
+    "Perceived_AI_Dependency",
+    "Anxiety_Level_During_Exams",
+    "Skill_Retention_Score",
+    "Tool_Diversity"
+  ],
+  "categoricalFields": [
+    "Major_Category",
+    "Year_of_Study",
+    "Primary_Use_Case",
+    "Prompt_Engineering_Skill",
+    "Paid_Subscription",
+    "Institutional_Policy",
+    "Age_Group",
+    "Learning_Style",
+    "Tech_Access_Level",
+    "Native_Language"
+  ],
+  "timestamp": "2026-05-23T09:17:40.905Z"
+}

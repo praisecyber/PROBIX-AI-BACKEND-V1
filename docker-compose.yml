@@ -1,0 +1,38 @@
+services:
+  node-backend:
+    build: .
+    container_name: probix-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MATH_SERVICE_URL=http://math-service:8001
+      - MONGO_DB_CONNECTION_STRING=${MONGO_DB_CONNECTION_STRING}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL}
+      - CLOUDFLARE_KEY=${CLOUDFLARE_KEY:-}
+    depends_on:
+      - math-service
+    networks:
+      - probix-network
+    restart: unless-stopped
+
+  math-service:
+    build: ./nllb-translator/math-service
+    container_name: math-service
+    ports:
+      - "8001:8001"
+    networks:
+      - probix-network
+    restart: unless-stopped
+
+networks:
+  probix-network:
+    driver: bridge

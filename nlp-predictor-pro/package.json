@@ -1,0 +1,16 @@
+{
+  "name": "probix-predictor-pro",
+  "version": "1.0.0",
+  "description": "Predictive ML Engine for Probix AI",
+  "main": "predictorModel.js",
+  "scripts": {
+    "train": "node train_predictive.js",
+    "predict": "node predict.js",
+    "load-kaggle": "node loadKaggleData.js",
+    "preprocess": "node preprocess.js",
+    "prepare-data": "npm run load-kaggle && npm run preprocess"
+  },
+  "dependencies": {
+    "ml-regression-multivariate-linear": "^1.0.0"
+  }
+}

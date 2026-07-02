@@ -1,0 +1,4 @@
+nllb-translator/model_cache/** -text
+nllb-translator/model_cache/**/*.onnx binary
+nllb-translator/model_cache/**/*.bin binary
+nllb-translator/model_cache/**/*.json text

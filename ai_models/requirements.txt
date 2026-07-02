@@ -1,0 +1,12 @@
+# Required for the servers to run
+fastapi>=0.95.0
+uvicorn>=0.21.0
+pydantic>=1.10.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# Optional: For API mode (works with OpenAI-compatible APIs)
+openai>=1.0.0
+
+# Optional: For LOCAL mode with llama.cpp (no internet, but needs build tools)
+# llama-cpp-python>=0.2.0

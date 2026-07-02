@@ -1,0 +1,15 @@
+{
+  "Pre_Semester_GPA": 3.5,
+  "Weekly_GenAI_Hours": 15,
+  "Traditional_Study_Hours": 12,
+  "Perceived_AI_Dependency": 3,
+  "Anxiety_Level_During_Exams": 4,
+  "Skill_Retention_Score": 78,
+  "Tool_Diversity": 3,
+  "Major_Category": "Business",
+  "Year_of_Study": "Senior",
+  "Primary_Use_Case": "Code_Generation",
+  "Prompt_Engineering_Skill": "Intermediate",
+  "Paid_Subscription": "True",
+  "Institutional_Policy": "Allowed_With_Citation"
+}
