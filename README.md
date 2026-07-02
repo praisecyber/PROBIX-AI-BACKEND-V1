@@ -175,50 +175,6 @@ For a one-shot setup on a new machine, this also works:
 npm install && npm run nllb:demo
 ```
 
-### Environment Configuration
-
-Create a `.env` file in the project root with these variables:
-
-```dotenv
-# Server Configuration
-PORT=3000
-NODE_ENV=development
-
-# Database
-MONGO_DB_CONNECTION_STRING=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/<dbname>?retryWrites=true&w=majority
-
-# Authentication
-JWT_SECRET=your_very_secure_jwt_secret_key_here
-JWT_EXPIRES_IN=7d
-
-# CORS
-ALLOWED_ORIGINS=*
-
-# Email Configuration
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=465
-EMAIL_USER=your-email@example.com
-EMAIL_PASS=your-email-app-password
-RESEND_API_KEY=re_your_resend_api_key_here
-RESEND_FROM_EMAIL="Probix <onboarding@probix.io>"
-
-# Cloudflare (Optional)
-CLOUDFLARE_KEY=
-
-# External Services
-MATH_SERVICE_URL=http://localhost:8003
-GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_API_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
-
-# Local Model Server URLs (Optional)
-MISTRAL_URL=http://localhost:8001
-GEMMA_URL=http://localhost:8002
-KOKORO_URL=http://localhost:8880
-
-# ElevenLabs (Optional - TTS Fallback)
-ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
-ELEVENLABS_VOICE_ID=pNInz6obpgDQGcFmaJgB  # Default voice (optional)
-```
 
 ### Running the Application
 
